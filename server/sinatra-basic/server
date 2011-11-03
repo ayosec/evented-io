@@ -1,0 +1,19 @@
+#!/bin/sh
+
+OPTS="-d -l tmp/server.log -P tmp/pids/thin.pid"
+
+case "$1" in
+  start)
+    mkdir -p tmp
+    bundle exec thin start $OPTS
+    ;;
+
+  stop)
+    bundle exec thin stop $OPTS
+    ;;
+
+  *)
+    echo $0 'start|stop'
+    ;;
+
+esac
