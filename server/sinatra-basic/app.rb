@@ -9,7 +9,7 @@ require './models'
 def json_reply(status, object)
   [
     status,
-    {"Content-Type" => "text/html; charset=UTF-8"},
+    {"Content-Type" => "application/json"},
     object.to_json
   ]
 end
