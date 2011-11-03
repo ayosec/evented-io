@@ -1,0 +1,66 @@
+#!/bin/bash
+
+set -e
+
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
+
+function run() {
+  pushd $1 1>&2
+  shift
+  . .rvmrc
+  "$@"
+  popd 1>&2
+}
+
+function wait_tcp() {
+  port=$1
+  n=0
+  while test $n -lt 100
+  do
+    fuser -s $port/tcp && break
+    echo wait for $port
+    sleep 0.2
+    n=$((n + 1))
+  done
+}
+
+cd `dirname $0`/..
+
+RESULTS_ROOT=`pwd`/results
+if test -d $RESULTS_ROOT
+then
+  RESULTS_ROOT=$RESULTS_ROOT/`ls -1 $RESULTS_ROOT | wc -l`
+else
+  RESULTS_ROOT=$RESULTS_ROOT/0
+fi
+
+mkdir -p $RESULTS_ROOT
+echo RESULTS_ROOT = $RESULTS_ROOT
+
+for server in server/*
+do
+  server_name=`basename $server`
+  echo -e Running \\e[1m$server_name\\e[m...
+
+  # Force a new MongoDB instance
+  tools/mongodb_kill
+  sleep 0.1
+  tools/mongodb_create
+  wait_tcp 27017
+
+  # Launch server
+  run $server ./server start
+  wait_tcp 3000
+
+  # Launch client
+  run client/ruby-em/ ./client.rb -r html -i 4 ../../URLs > $RESULTS_ROOT/$server_name.html
+
+  # Stop client
+  run $server ./server stop
+
+  tools/mongodb_kill
+
+done
+
+# vim: syntax=sh
+
