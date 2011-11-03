@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Generated results</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+    <style><%= File.read(File.join(File.dirname(__FILE__), "report_styles.css")) %></style>
+  </head>
+  <body>
+    <h1>Results</h1>
+    <table class="summary">
+      <tr>
+        <th>Time running:</th>
+        <td><%= query_machine.machine_stop - query_machine.machine_start  %>s</td>
+      </tr>
+      <tr>
+        <th>Total requests:</th>
+        <td><%= query_machine.tasks.size %></td>
+      </tr>
+      <tr>
+        <th>Failed requests:</th>
+        <td><%= query_machine.tasks.count {|task| !task.succeed } %></td>
+      </tr>
+    </table>
+  </body>
+
+  <h2>Requests</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Duration</th>
+        <th>Request</th>
+        <th>Response</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% query_machine.tasks.each do |task| %>
+      <tr class="<%= task.succeed ? "succeed" : "failed" %>">
+        <td class="task-id"><%= task.id %></td>
+        <td class="duration"><%= task.end_time - task.start_time %></td>
+        <td class="request">
+          <% request = task.query["request"] %>
+          <span class="method"><%= h request["method"] %></span>
+          <span class="uri"><%= h request["uri"] %></span>
+
+          <% if request["query"] %>
+            <br>
+            <span class="query"><%= h request["query"].inspect %></span>
+          <% end %>
+
+          <% if request["auth"] %>
+            <br>
+            <span class="auth"><%= h request["auth"].join(":") %></span>
+          <% end %>
+
+        </td>
+        <td class="response">
+          <span class="status"><%= task.http_request.response_header.status %></span>
+          <% unless task.succeed %>
+          <div class="output">Result: <input value="<%= h task.http_request.response %>" /></div>
+          <div class="output">Expected: <input value="<%= h task.query["response"] %>" /></div>
+          <% end %>
+        </td>
+      </tr>
+      <% end %>
+    </tbody>
+</html>

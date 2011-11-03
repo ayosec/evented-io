@@ -1,0 +1,34 @@
+body {
+  background: #777;
+}
+
+table {
+  background: black;
+  border-spacing: 1px;
+}
+
+td, th {
+  background: white;
+  text-align: left;
+  padding: 1ex;
+}
+
+table.records tr:nth-child(2n) td {
+  background: #eee;
+}
+
+tr.failed td {
+  background: #faa !important;
+}
+
+td.request span.auth {
+  font-style: italic;
+}
+
+td.request span.query, td.request span.method {
+  font-family: monospace;
+}
+
+td.request span.uri, td.request span.method {
+  font-weight: bold;
+}
