@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# fuser is available in the psmisc package
+fuser 27017/tcp -k

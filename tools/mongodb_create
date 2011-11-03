@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+DB_PATH=/tmp/test-eio/mongodb-$$-$RANDOM
+
+if [ -f $DB_PATH ]
+then
+  echo $DB_PATH exists
+  exit 1
+fi
+
+echo Generating the new database in $DB_PATH
+mkdir -p $DB_PATH/data
+
+echo -e -n "\033]0;MongoDB\007"
+
+exec mongod --fork --dbpath $DB_PATH/data --pidfilepath $DB_PATH/server.pid --nohttpinterface --noauth --logpath $DB_PATH/server.log "$@"

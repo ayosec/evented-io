@@ -1,0 +1,161 @@
+#!/usr/bin/env ruby
+# coding: UTF-8
+
+require 'json'
+require 'time'
+
+# Configurable items
+module Counters
+  class <<self
+    attr_accessor :webs, :users, :visits, :ips, :paths, :checks
+  end
+
+  self.webs = 20
+  self.users = 10
+  self.visits = 20_000
+  self.ips = 200
+  self.paths = 20
+  self.checks = 2_000
+end
+
+#### Parse options from command line
+# Options are given in the form attribute=value. For example
+# ruby generator.rb webs=200 users=50
+
+ARGV.each do |arg|
+  if arg =~ /\A(\w+=)(\d+)\Z/
+    name, value = $1, $2
+    if Counters.respond_to?(name)
+      Counters.send name, value.to_i
+      next
+    end
+  end
+
+  STDERR.puts "Unknown argument: #{arg}"
+  exit 1
+end
+
+#### Samples
+
+BeginToGenerate = Time.now
+
+module Samples
+
+  # Random string
+  def self.Σ(length)
+    chrs = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".chars.to_a
+    length.times.map { chrs.sample }.join
+  end
+
+  Browsers = %w(Chrome Firefox Konqueror Lynx)
+  OSs = %w(FreeBSD Linux OpenSolaris)
+
+  IPs = Counters.ips.times.map { 4.times.map { rand 255 }.join(".") }
+
+  Users = Counters.users.times.map { [ Σ(rand(5) + 5), Σ(rand(5) + 5) ] }
+  Websites = Counters.webs.times.map { { name: Σ(rand(10) + 4), user: Users.sample } }
+  Paths = Counters.paths.times.map { "/" + (1 + rand(6)).times.map { Σ(rand(5) + 2) }.join("/") }
+end
+
+#### Some helpers to create the request/response objects
+
+def combinator(source)
+  Enumerator.new do |y|
+    source.each_with_index do |item, index|
+      y << [item]
+      combinator(source[(index+1)..-1]).each do |sub|
+        y << sub.unshift(item)
+      end
+    end
+  end
+end
+
+class Hash
+  def +(that)
+    merge(that)
+  end
+end
+
+def req(uri, query = nil, method = "POST", auth = nil)
+  request = { uri: uri, method: method }
+  request[:query] = query if query
+  request[:auth] = auth if auth
+  { request: request }
+end
+
+def resp(options = {})
+  options[:status] ||= 200
+  { response: options }
+end
+
+#### User
+Samples::Users.each do |u, p|
+  j req("/users", { name: u, password: p }) + resp(has_key: "user_id")
+end
+
+# Check validations (1) Name not empty (2) Name length >= 4 (3) unique name
+j req("/users") + resp(status: 403)
+j req("/users", { name: "aaa", password: "bbbbbbbbbbbb" }) + resp(status: 403)
+j req("/users", { name: Samples::Users[0][0], password: "bbbbbbbbbbbb" }) + resp(status: 403)
+
+
+#### Webs
+
+Samples::Websites.each do |website|
+  j req("/websites", { name: website[:name] }, "POST", website[:user]) + resp(has_key: "website_id")
+end
+
+# Check validations (1) user required (2) Name length >= 4 (3) unique name
+j req("/websites") + resp(status: 401)
+j req("/websites", { name: "aaa" }, "POST", Samples::Users[0]) + resp(status: 403)
+j req("/websites", { name: Samples::Websites[0][0] }, "POST", Samples::Users[0]) + resp(status: 403)
+
+j wait: true
+
+#### Visits
+GeneratedVisits = []
+reference_time = Time.parse("2010-01-01 00:00:00")
+TwoYears = 3600 * 24 * 365 * 2
+Counters.visits.times do
+  visited_at = reference_time + rand(TwoYears)
+  visit = {
+    name: Samples::Websites.sample[:name],
+    path: Samples::Paths.sample,
+    ip: Samples::IPs.sample,
+    browser: Samples::Browsers.sample,
+    os: Samples::OSs.sample,
+    visited_at: visited_at.strftime("%F %X")
+  }
+
+  j req("/visit", visit) + resp
+
+  visit[:hour] = visited_at.strftime "%H:%M"
+  visit[:day] = visited_at.strftime "%Y%m%d"
+  GeneratedVisits << visit
+end
+
+j wait: true
+
+#### Check results
+
+Queries = combinator([:os, :path, :ip, :browser, :hour, :day]).to_a
+
+Counters.checks.times do
+  query = Queries.sample
+  website = Samples::Websites.sample
+
+  # Compute the results
+  expected = Hash.new(0)
+  GeneratedVisits.each do |visit|
+    next unless visit[:name] == website[:name]
+    key = query.inject({}) {|hash, key| hash[key] = visit[key]; hash }
+    expected[key] += 1
+  end
+
+  # Adjust expected
+  expected = expected.map {|k, v| { key: k, count: v } }
+
+  j req("/stats", { query: query * ",", name: website[:name] }, "GET", website[:user]) + resp(compare_set: expected)
+end
+
+STDERR.puts "Time to generate: #{Time.now - BeginToGenerate}s"
