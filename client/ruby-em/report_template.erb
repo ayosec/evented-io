@@ -23,6 +23,37 @@
     </table>
   </body>
 
+  <h2>Summary</h2>
+  <% results[:groups].each do |group| %>
+    <h3><%= h group[:label] %></h3>
+    <table>
+      <tr>
+        <th>Total requests</th>
+        <td><%= h group[:total_requests] %></td>
+      </tr>
+      <tr>
+        <th>Failed requests</th>
+        <td><%= h group[:failed_requests] %></td>
+      </tr>
+      <tr>
+        <th>Max time</th>
+        <td><%= req_time group[:max_time] %></td>
+      </tr>
+      <tr>
+        <th>Min time</th>
+        <td><%= req_time group[:min_time] %></td>
+      </tr>
+      <tr>
+        <th>Average time</th>
+        <td><%= req_time group[:avg_time] %></td>
+      </tr>
+      <tr>
+        <th>Std. deviation</th>
+        <td><%= "%.4fs" % group[:std_deviation] %></td>
+      </tr>
+    </table>
+  <% end %>
+
   <h2>Requests</h2>
   <table>
     <thead>

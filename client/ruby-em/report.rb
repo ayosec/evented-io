@@ -26,20 +26,7 @@ module Report
     def puts(*rows)
       rows.each {|row| write(row, "\n") }
     end
-  end
 
-  class HTML < Base
-    include ERB::Util
-
-    TemplatePath = File.join(File.dirname(__FILE__), "report_template.erb")
-
-    def generate!
-      write ERB.new(File.read(TemplatePath)).result(binding).gsub(/^    /, '')
-    end
-
-  end
-
-  class JSON < Base
     def results
       tasks = query_machine.tasks
       result = {
@@ -72,6 +59,23 @@ module Report
       result
     end
 
+    def req_time(time)
+      "%.4fs (%.2f reqs/s)" % [time, 1 / time]
+    end
+  end
+
+  class HTML < Base
+    include ERB::Util
+
+    TemplatePath = File.join(File.dirname(__FILE__), "report_template.erb")
+
+    def generate!
+      write ERB.new(File.read(TemplatePath)).result(binding).gsub(/^    /, '')
+    end
+
+  end
+
+  class JSON < Base
     def generate!
       puts results.to_json
     end
@@ -80,7 +84,7 @@ module Report
   class Stats < JSON
 
     def show_req_time(label, time)
-      puts "#{label}: %.4fs (%.2f reqs/s)" % [time, 1 / time]
+      puts "#{label}: #{req_time(time)}"
     end
 
     def generate!
