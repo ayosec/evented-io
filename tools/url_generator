@@ -134,6 +134,8 @@ Counters.visits.times do
   GeneratedVisits << visit
 end
 
+j req("/visit", name: "x") + resp(status: 404)
+
 j wait: true
 
 #### Check results
@@ -158,4 +160,21 @@ Counters.checks.times do
   j req("/stats", { query: query * ",", name: website[:name] }, "GET", website[:user]) + resp(compare_set: expected)
 end
 
+Samples::Websites.first.tap do |website|
+  # Invalid query
+  j req("/stats", { query: "x", name: website[:name] }, "GET", website[:user]) + resp(status: 403)
+
+  # Web of another user
+  j req("/stats", { query: "x", name: website[:name] }, "GET", Samples::Websites.last[:user]) + resp(status: 403)
+
+  # Non-existant web
+  j req("/stats", { query: Queries.first, name: "-" }, "GET", website[:user]) + resp(status: 404)
+
+  # Anonymous request
+  j req("/stats", { query: "os", name: website[:name] }, "GET") + resp(status: 401)
+end
+
 STDERR.puts "Time to generate: #{Time.now - BeginToGenerate}s"
+
+
+# vim: ft=ruby
