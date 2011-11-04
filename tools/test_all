@@ -49,11 +49,13 @@ do
   wait_tcp 27017
 
   # Launch server
+  fuser -k 3000/tcp || true
   run $server ./server start
   wait_tcp 3000
+  sleep 1
 
   # Launch client
-  run client/ruby-em/ ./client.rb -r html -i 4 ../../URLs > $RESULTS_ROOT/$server_name.html
+  run client/ruby-em/ ./client.rb $CLIENT_OPTS -r html -i 4 ../../URLs > $RESULTS_ROOT/$server_name.html
 
   # Stop client
   run $server ./server stop
