@@ -1,0 +1,10 @@
+source :rubygems
+
+gem "sinatra"
+gem "async_sinatra"
+gem "thin"
+gem "json"
+gem "bson_ext"
+gem "i18n"
+gem "activemodel"
+gem "em-mongo"

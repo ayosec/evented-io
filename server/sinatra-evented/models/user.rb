@@ -1,0 +1,28 @@
+
+class User < Model::Base
+
+  field :name
+  field :crypted_password
+
+  def password=(new_password)
+    self.crypted_password = self.class.digest_password(new_password)
+  end
+
+  attr_accessible :name, :password
+  validates_length_of :name, allow_blank: false, minimum: 4
+  validates_uniqueness_of :name
+
+  index :name, unique: true
+
+  class <<self
+    def digest_password(password)
+      Digest::MD5.hexdigest(password)
+    end
+
+    def valid?(username, password, &callback)
+      first name: username, crypted_password: digest_password(password), &callback
+    end
+  end
+
+end
+
