@@ -30,7 +30,7 @@ class QueryMachine
       @is_waiting = false
     end
 
-    while @running < @concurrency and not @source.eof?
+    while @running < @concurrency and not @source.eof? and not @is_waiting
       line = @source.readline.strip
       process_query JSON.parse(line) unless line.empty?
     end
