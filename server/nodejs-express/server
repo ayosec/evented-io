@@ -1,0 +1,16 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    node app.js &
+    ;;
+
+  stop)
+    fuser -k 3000/tcp
+    ;;
+
+  *)
+    echo $0 'start|stop'
+    ;;
+
+esac
