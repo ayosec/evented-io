@@ -7,7 +7,7 @@ set -e
 function run() {
   pushd $1 1>&2
   shift
-  . .rvmrc
+  test -f .rvmrc && . .rvmrc
   "$@"
   popd 1>&2
 }
