@@ -39,11 +39,8 @@ module Report
       groups.each do |label, tasks|
         times = tasks.map {|task| task.end_time - task.start_time }
 
-        Σ = times.inject(:+)
-        τ = times.size.to_f
-        α = Σ / τ
-
-        σ = Math.sqrt((times.inject(0) {|β, χ| β + (χ - α) ** 2}) / τ)  # standar deviation
+        α = times.inject(:+) / times.size.to_f
+        σ = Math.sqrt((times.inject(0) {|β, χ| β + (χ - α) ** 2}) / times.size.to_f)  # standar deviation
 
         result[:groups] << {
           label: label,
