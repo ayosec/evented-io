@@ -64,7 +64,7 @@ class QueryMachine
       inactivity_timeout: @timeout
     }
 
-    if request["method"] !~ /\AGET|POST\Z/i
+    if request["method"] !~ /\AGET|POST\Z/
       STDERR.puts "Unknown method in #{request.inspect}"
       return
     end
@@ -74,7 +74,7 @@ class QueryMachine
     end
 
     if request["query"]
-      options[:query] = request["query"]
+      options[request["method"] == "GET" ? :query : :body] = request["query"]
     end
 
     task = Task.new
