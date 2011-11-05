@@ -21,6 +21,35 @@ tr.failed td {
   background: #faa !important;
 }
 
+#only-failed { display: none; }
+
+#only-failed ~ label {
+  font-size: 120%;
+  padding: 1ex;
+  margin: 1em;
+  border: 1px solid black;
+  background: #777;
+  color: #222;
+  display: inline-block;
+}
+
+#only-failed ~ label span {
+  opacity: 0;
+}
+
+#only-failed:checked ~ label {
+  background: #ffa;
+  color: black;
+}
+
+#only-failed:checked ~ label span {
+  opacity: 1;
+}
+
+#only-failed:checked ~ label ~ table.requests tbody tr:not(.failed) {
+  display: none;
+}
+
 td.request span.auth {
   font-style: italic;
 }

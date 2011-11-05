@@ -6,6 +6,7 @@
     <style><%= File.read(File.join(File.dirname(__FILE__), "report_styles.css")) %></style>
   </head>
   <body>
+
     <h1>Results</h1>
     <table class="summary">
       <tr>
@@ -31,7 +32,7 @@
         <th>Total requests</th>
         <td><%= h group[:total_requests] %></td>
       </tr>
-      <tr>
+      <tr <%= group[:failed_requests] > 0 ? 'class="failed"' : "" %>>
         <th>Failed requests</th>
         <td><%= h group[:failed_requests] %></td>
       </tr>
@@ -55,7 +56,9 @@
   <% end %>
 
   <h2>Requests</h2>
-  <table>
+  <input type="checkbox" checked id="only-failed" />
+  <label for="only-failed"><span>&#x2713;</span> Show only failed requests</label>
+  <table class="requests">
     <thead>
       <tr>
         <th>ID</th>
