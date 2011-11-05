@@ -98,6 +98,7 @@ j req("/users") + resp(status: 403)
 j req("/users", { name: "aaa", password: "bbbbbbbbbbbb" }) + resp(status: 403)
 j req("/users", { name: Samples::Users[0][0], password: "bbbbbbbbbbbb" }) + resp(status: 403)
 
+j wait: true
 
 #### Webs
 
