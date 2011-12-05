@@ -15,4 +15,4 @@ mkdir -p $DB_PATH/data
 
 echo -e -n "\033]0;MongoDB\007"
 
-exec mongod --fork --dbpath $DB_PATH/data --pidfilepath $DB_PATH/server.pid --nohttpinterface --noauth --logpath $DB_PATH/server.log "$@"
+exec mongod --nojournal --noprealloc --fork --dbpath $DB_PATH/data --pidfilepath $DB_PATH/server.pid --nohttpinterface --noauth --logpath $DB_PATH/server.log "$@"
