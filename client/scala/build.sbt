@@ -1,22 +1,29 @@
 
+import AssemblyKeys._
+
 name := "client-eio"
 
 version := "0.1"
 
 scalaVersion := "2.9.1"
 
+scalacOptions += "-deprecation"
+
 mainClass := Some("com.ayosec.eioclient.Runner")
 
 resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
 
-libraryDependencies += "com.ning" % "async-http-client" % "1.6.5"
+libraryDependencies ++= Seq(
+  "joda-time" % "joda-time" % "1.2.1",
+  "com.ning" % "async-http-client" % "1.6.5",
+  "net.sf.trove4j" % "trove4j" % "3.0.1",
+  "net.liftweb" %% "lift-json" % "2.4-M4"
+)
 
-//libraryDependencies += "se.scalablesolutions.akka" % "akka-actor" % "1.2"
 
-libraryDependencies += "net.liftweb" %% "lift-json" % "2.4-M4"
+seq(assemblySettings: _*)
 
-seq(com.github.retronym.SbtOneJar.oneJarSettings: _*)
+assembleArtifact in packageScala := false
 
-scalacOptions += "-deprecation"
 
 // vim: syntax=scala
