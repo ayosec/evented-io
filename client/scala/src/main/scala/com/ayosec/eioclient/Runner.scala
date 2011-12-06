@@ -31,10 +31,23 @@ object Runner extends App {
   }
 
   val taskGenerator = buildGeneratorFromArgs
+
   for (group <- taskGenerator.groups) {
-    println("--- GROUP ---")
-    for(task <- group)
-      println(task)
+    System.gc // clean-up
+
+    val tasks = tasksFor(group)
+    /*for(task <- group)
+      println(task)*/
   }
-  println( taskGenerator.groups.foldLeft(0) { _ + _.size } )
+
+  def tasksFor(group: tasks.TasksGroup) = {
+    print("[" + group.name + "] ")
+
+    val startTime = System.nanoTime
+    val tasks = group.tasks
+    println(tasks.size + " tasks generated in " + ((System.nanoTime - startTime) / 1000000) + "ms")
+    tasks
+  }
+
+  //println( taskGenerator.groups.foldLeft(0) { _ + _.size } )
 }

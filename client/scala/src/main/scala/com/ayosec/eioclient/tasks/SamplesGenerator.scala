@@ -6,6 +6,15 @@ object SamplesGenerator {
 
   class SeqWrapper[T](val source : Seq[T]) {
     def sample = source(util.Random.nextInt(source.length))
+
+    def subsamples: Seq[Seq[T]] = subsamples(source)
+
+    def subsamples[T](items: Seq[T]): Seq[Seq[T]] = {
+      if(items.isEmpty)
+        Seq(Seq[T]())
+      else 
+        subsamples(items.tail).map { items.head +: _ } ++ subsamples(items.tail)
+    } 
   }
 
   implicit def wrapSeq[T](source: Seq[T]) = new SeqWrapper(source)

@@ -1,31 +1,5 @@
 package com.ayosec.eioclient.tasks
 
-import net.liftweb.json.JsonAST.JNothing
-import net.liftweb.json.JValue
-import java.net.URLEncoder.{encode => urlencode}
-
-
-abstract class Condition {
-  def validates(response: JValue) : Boolean
-}
-
-class HasKey(keyName: String) extends Condition {
-  def validates(response: JValue) = (response \ keyName) != JNothing
-  override def toString = "HasKey(" + keyName + ")"
-}
-
-class CompareSet(set: Any) extends Condition {
-  // TODO
-  def validates(response: JValue) = false
-  override def toString = "CompareSet(...)"
-}
-
-object NoCondition extends Condition {
-  def validates(response: JValue) = true
-  override def toString = "NoCondition"
-}
-
-
 class Auth(val user: String, val password: String) {
   override def toString = "Auth(" + user + ":" + password + ")"
 }
@@ -46,6 +20,8 @@ class Request(
 
 
 object Request {
+  import java.net.URLEncoder.{encode => urlencode}
+
   def encodeMap(params: Map[String, String]): String =
     params.
     map( (k) => urlencode(k._1, "UTF-8") + "=" + urlencode(k._2, "UTF-8")).

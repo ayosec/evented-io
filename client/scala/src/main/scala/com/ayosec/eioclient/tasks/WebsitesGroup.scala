@@ -1,10 +1,10 @@
 package com.ayosec.eioclient.tasks
 
-class WebsitesGroup(samples: Samples) {
-  final val url = "/websites"
-  final val POST = "POST"
+class WebsitesGroup(samples: Samples) extends TasksGroup {
+  val name = "Websites"
+  val url = "/websites"
 
-  val tasks = {
+  lazy val tasks = {
     val validations = List(
       new Task(Request(POST, url), Response(401)),
       new Task(Request(POST, url, Map("name" -> "aaa"), samples.users(0)), Response(403)),
