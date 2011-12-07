@@ -14,7 +14,9 @@ class ChecksGroup(val samples: Samples) extends TasksGroup {
   final val queries = List("os", "path", "ip", "browser", "hour", "day").subsamples.filter { _.size > 1 }
 
   lazy val tasks: List[Task] = {
-    val validations = List[Task]() // TODO
+    val validations = List(
+      new Task(Request(GET, url, "name=x"), Response(404))
+    )
 
     val checks = parallel(samples.counters.checks) { (count) =>
       val builder = new Array[Task](count)
@@ -27,22 +29,21 @@ class ChecksGroup(val samples: Samples) extends TasksGroup {
         // Results after map-reduce the visits
         val mapReduce = new MapReduceResult() with MRComparator
 
-        for(visit <- samples.visits if visit.name == website.name) {
-          val mapped = new HashMap[String, String]
-          //val mapped = new StringBuffer
-          for(key <- query) {
-            mapped.put(key, visit.get(key))
-          }
+        for(visit <- samples.visits) {
+          if(visit.name == website.name) {
+            val mapped = new HashMap[String, String](query.size)
+            for(key <- query)
+              mapped.put(key, visit.get(key))
 
-          // Increment or initialize
-          if(!mapReduce.increment(mapped))
-            mapReduce.put(mapped, 1)
+            if(!mapReduce.increment(mapped))
+              mapReduce.put(mapped, 1)
+          }
         }
 
         // Related task
         builder(i) = new Task(
           Request(GET, url, Map("query" -> query.mkString(","), "name" -> website.name)),
-          Response(200, new CompareSet(0))
+          Response(200, new CompareSet(mapReduce))
         )
       }
 

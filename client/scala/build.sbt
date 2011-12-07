@@ -11,13 +11,16 @@ scalacOptions += "-deprecation"
 
 mainClass := Some("com.ayosec.eioclient.Runner")
 
+fork in run := true
+
 resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
 
 libraryDependencies ++= Seq(
   "joda-time" % "joda-time" % "1.2.1",
   "com.ning" % "async-http-client" % "1.6.5",
   "net.sf.trove4j" % "trove4j" % "3.0.1",
-  "net.liftweb" %% "lift-json" % "2.4-M4"
+  "net.liftweb" %% "lift-json" % "2.4-M4",
+  "org.scalatest" %% "scalatest" % "1.6.1" % "test"
 )
 
 
