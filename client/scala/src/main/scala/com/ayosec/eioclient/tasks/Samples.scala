@@ -51,8 +51,15 @@ class Samples(val counters: Counters) {
       )
     }
 
-    lazy val hour = visitDate.getHourOfDay.toString + visitDate.getMinuteOfHour.toString
-    lazy val day = visitDate.getYear.toString + visitDate.getMonthOfYear.toString + visitDate.getDayOfMonth.toString
+    def fmtPart(value: Any, min: Int = 2) = {
+      var str = value.toString
+      while(str.size < min)
+        str = "0" + str
+      str
+    }
+
+    lazy val hour = fmtPart(visitDate.getHourOfDay) + ":" + fmtPart(visitDate.getMinuteOfHour)
+    lazy val day = fmtPart(visitDate.getYear, 4) + fmtPart(visitDate.getMonthOfYear) + fmtPart(visitDate.getDayOfMonth)
 
     /* Originally this method was implemented with
      *  def get(fieldName: String) = getClass.getMethod(fieldName).invoke(this).asInstanceOf[String]

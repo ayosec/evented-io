@@ -2,18 +2,19 @@ package com.ayosec.eioclient.tasks
 
 import SamplesGenerator._
 import ParallelGenerator.parallel
+
 import gnu.trove.map.hash.TObjectIntHashMap
-import java.util.HashMap
-import net.liftweb.json.JValue
+
+import net.liftweb.json.{JValue, MappingException}
 
 class ChecksGroup(val samples: Samples) extends TasksGroup {
 
   val url = "/stat"
   val name = "Checks"
 
-  final val queries = List("os", "path", "ip", "browser", "hour", "day").subsamples.filter { _.size > 1 }
+  val queries = List("os", "path", "ip", "browser", "hour", "day").subsamples.filter { _.size > 1 }
 
-  lazy val tasks: List[Task] = {
+  lazy val tasks = {
     val validations = List(
       new Task(Request(GET, url, "name=x"), Response(404))
     )
@@ -27,18 +28,10 @@ class ChecksGroup(val samples: Samples) extends TasksGroup {
         val website = samples.websites.sample
 
         // Results after map-reduce the visits
-        val mapReduce = new MapReduceResult() with MRComparator
-
-        for(visit <- samples.visits) {
-          if(visit.name == website.name) {
-            val mapped = new HashMap[String, String](query.size)
-            for(key <- query)
-              mapped.put(key, visit.get(key))
-
-            if(!mapReduce.increment(mapped))
-              mapReduce.put(mapped, 1)
-          }
-        }
+        val mapReduce = new MapReduceResult
+        for(visit <- samples.visits)
+          if(visit.name == website.name)
+            mapReduce.increment(query map { (key) => (key -> visit.get(key)) })
 
         // Related task
         builder(i) = new Task(
@@ -53,8 +46,43 @@ class ChecksGroup(val samples: Samples) extends TasksGroup {
     validations ++ checks
   }
 
-  type MapReduceResult = TObjectIntHashMap[HashMap[String, String]]
-  trait MRComparator {
-    def equals(that: JValue) = false
+}
+
+class MapReduceResult {
+  type Key = Seq[Tuple2[String, String]]
+
+  val expected = new TObjectIntHashMap[Key]
+
+  def increment(key: Key) =
+    if(!expected.increment(key))
+      expected.put(key, 1)
+
+  def put(key: Key, count: Int) = expected.put(key, count)
+
+  // Check equality
+
+  import net.liftweb.json._
+
+  class JsonItem(val count: Int, val key: Map[String,String])
+
+  def hasAllItems(items: List[JsonItem]): Boolean =
+    if(items.isEmpty)
+      true
+    else
+      hasItem(items.head) && hasAllItems(items.tail)
+
+  def hasItem(item: JsonItem) = {
+    item.count == expected.get(item.key.toSeq)
+  }
+
+  def equals(that: JValue): Boolean = {
+    try {
+      implicit val formats = DefaultFormats
+      val items = that.extract[List[JsonItem]]
+
+      items.size == expected.size && hasAllItems(items)
+    } catch {
+      case e: MappingException => return false
+    }
   }
 }
