@@ -174,4 +174,4 @@ app.get("/stats", auth, function(request, response) {
   });
 });
 
-app.listen(3000);
+app.listen(parseInt(process.env["PORT"] || 3000))

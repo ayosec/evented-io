@@ -1,9 +1,17 @@
-#!/bin/sh
+#!/bin/bash
+
+source ~/.rvm/scripts/rvm
+source .rvmrc
 
 OPTS="-d -l tmp/server.log -P tmp/pids/thin.pid"
 
 case "$1" in
   start)
+    if [ -n "$PORT" ]
+    then
+      OPTS="$OPTS -p $PORT"
+    fi
+
     mkdir -p tmp
     bundle exec thin start $OPTS
     ;;
