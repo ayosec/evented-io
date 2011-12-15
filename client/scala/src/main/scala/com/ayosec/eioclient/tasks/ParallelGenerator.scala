@@ -17,9 +17,8 @@ object ParallelGenerator {
   }
 
   def parallel[T](count: Int)(callback: (Int) => Iterable[T]) = {
-    val futures =
-      for(count <- segmentsSize(count))
-        yield future { callback(count) }
+    // Generate one thread for every segment
+    val futures = segmentsSize(count) map { (count) => future { callback(count) } }
 
     // Wait for the result of every thread and concatenate them
     futures flatMap { _ apply }

@@ -35,7 +35,7 @@ class ChecksGroup(val samples: Samples) extends TasksGroup {
 
         // Related task
         builder(i) = new Task(
-          Request(GET, url, Map("query" -> query.mkString(","), "name" -> website.name)),
+          Request(GET, url, "query=" + query.mkString(",") + "&name=" + website.name),
           Response(200, new CompareSet(mapReduce))
         )
       }
@@ -80,6 +80,7 @@ class MapReduceResult {
       implicit val formats = DefaultFormats
       val items = that.extract[List[JsonItem]]
 
+      // This assumes that every item if differente
       items.size == expected.size && hasAllItems(items)
     } catch {
       case e: MappingException => return false

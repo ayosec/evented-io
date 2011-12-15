@@ -17,9 +17,9 @@ class ChecksSpec extends FlatSpec with ShouldMatchers {
   it should "detect when the JSON is equal to the expected object" in {
     val expected = new MapReduceResult
     expected.put(Seq("a" -> "b"), 1)
+    expected.put(Seq("0" -> "1"), 4)
     expected.put(Seq("a" -> "c"), 2)
     expected.put(Seq("a" -> "d"), 3)
-    expected.put(Seq("0" -> "1"), 4)
     expected.equals(jsonObject) should be (true)
   }
 

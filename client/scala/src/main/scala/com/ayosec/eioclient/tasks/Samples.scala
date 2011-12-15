@@ -9,10 +9,10 @@ import ParallelGenerator.parallel
 class Counters {
   var webs = 20
   var users = 10
-  var visits = 20000
+  var visits = 10000
   var ips = 200
   var paths = 20
-  var checks = 2000
+  var checks = 1000
 
   override def toString = ("Counters(" +
     "webs = " + webs +
