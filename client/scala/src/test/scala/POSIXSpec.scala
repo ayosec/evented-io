@@ -53,7 +53,7 @@ class POSIXSpec extends FlatSpec with ShouldMatchers {
 
     runTime { () =>
       Process(List("sh", "-c", "sleep 0.3; nc -l -p " + freePort)).run
-      POSIX.waitForPortAvailable(freePort)
+      POSIX.waitForPortReady(freePort)
     } should be > (500)
 
   }
