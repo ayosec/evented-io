@@ -4,21 +4,23 @@ class WebsitesGroup(samples: Samples) extends TasksGroup {
   val name = "Websites"
   val url = "/websites"
 
-  lazy val tasks = {
-    val validations = List(
-      new Task(Request(POST, url), Response(401)),
-      new Task(Request(POST, url, Map("name" -> "aaa"), samples.users(0)), Response(403)),
-      new Task(Request(POST, url, Map("name" -> samples.users(0).user, "password" -> "-")), Response(403))
+  lazy val tasks = samples.websites.par.map { (website) =>
+    new Task(
+      Request(POST, url, Map("name" -> website.name), website.user),
+      Response(200, new HasKey("website_id"))
     )
+  }.toList
 
-    val websites = samples.websites.par.map { (website) =>
-      new Task(
-        Request(POST, url, Map("name" -> website.name), website.user),
-        Response(200, new HasKey("user_id"))
-      )
-    }
+}
 
+class WebsiteValidationsGroup(samples: Samples) extends TasksGroup {
+  val name = "WebsiteValidations"
+  val url = "/websites"
 
-    validations ++ websites
-  }
+  lazy val tasks = List(
+    new Task(Request(POST, url), Response(401)),
+    new Task(Request(POST, url, Map("name" -> "aaa"), samples.users(0)), Response(403)),
+    new Task(Request(POST, url, Map("name" -> samples.websites(0).name), samples.websites(0).user), Response(403))
+  )
+
 }

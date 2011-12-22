@@ -8,11 +8,11 @@ class VisitsGroup(val samples: Samples) extends TasksGroup {
 
   lazy val tasks = {
     val validations = List(
-      new Task(Request(GET, url, Map("name" -> "x")), Response(404))
+      new Task(Request(POST, url, Map("name" -> "x")), Response(404))
     )
 
     val visits = samples.visits.par.map { (visit) =>
-      new Task(Request(GET, url, visit.asQuery), Response(200))
+      new Task(Request(POST, url, visit.asQuery), Response(200))
     }
 
 

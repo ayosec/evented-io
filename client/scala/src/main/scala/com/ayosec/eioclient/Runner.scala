@@ -41,9 +41,9 @@ object Runner extends App {
 
   val servers = options.servers map { new ServerImplementation(_) }
 
-  val tasks = {
+  val taskGroups = {
     val generator = new TaskGenerator(new Samples(options.counters))
-    generator.groups flatMap { (group) =>
+    generator.groups map { (group) =>
       print("[" + group.name + "] ")
 
       val startTime = System.nanoTime
@@ -54,11 +54,14 @@ object Runner extends App {
   }
 
   // Run the tests for every implementation
+  val report = new Report("/tmp/out.xml")
+
   for(server <- servers) {
     // Force a GC collect to remove previous garbage
     System.gc
-
-    var results = server.launch(tasks)
+    report.addServer(server, taskGroups)
   }
+
+  report.close
 
 }

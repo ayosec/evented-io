@@ -10,6 +10,9 @@ class Request(
     val query: Option[String],
     val auth: Option[Auth]) {
 
+  def isGet = method == "GET"
+  def isPost = method == "POST"
+
   override def toString = {
     var repr = "Request(method=" + method + ", path='" + path + "'"
     query foreach { repr += " query='" + _ + "'"}
@@ -38,6 +41,11 @@ object Request {
 class Response(val status: Int, val conditionOnBody: Condition) {
   override def toString = {
     "Response(status=" + status + ", conditionOnBody=" + conditionOnBody + ")"
+  }
+
+  def isValid(responseStatus: Int, responseBody: String) = {
+    //println(this + " isValid = " + (status == responseStatus && conditionOnBody.validates(responseBody)))
+    status == responseStatus && conditionOnBody.validates(responseBody)
   }
 }
 

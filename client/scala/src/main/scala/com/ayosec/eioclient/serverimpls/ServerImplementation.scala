@@ -9,7 +9,7 @@ class ServerImplementation(val path: String) {
   val implPort = 12000
   val mongodbPort = 27017
 
-  def launch(tasks: List[Task]) = {
+  def launch(taskGroups: List[List[Task]]) = {
 
     // Force a stop of any previous server and create a new one
     POSIX.killAtPortAndWait(implPort)
@@ -22,17 +22,23 @@ class ServerImplementation(val path: String) {
     POSIX.waitForPortReady(implPort)
 
     // Launch requests
-    // Process("curl -d name=fssoo&password=fooo http://localhost:" + implPort + "/users") ! // TODO
+    val results = taskGroups flatMap { (tasks) =>
+      val machine = new RequestMachine(100, implPort, tasks)
+      machine.run
+    }
 
     // Stop everything
     localServer("stop")
     mongodbServer.stop
+
+    results
   }
+
 
   def localServer(arg: String) { localServer(List(arg)) }
 
   def localServer(args: List[String]) {
-    Process("./server" :: args, new java.io.File(path), "PORT" -> implPort.toString).run
+    Process("./server" :: args, new java.io.File(path), "PORT" -> implPort.toString) !
   }
 
 }

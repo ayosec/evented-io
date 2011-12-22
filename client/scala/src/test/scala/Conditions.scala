@@ -1,7 +1,7 @@
 
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
-import com.ayosec.eioclient.tasks.HasKey
+import com.ayosec.eioclient.tasks._
 import net.liftweb.json
 
 class Conditions extends FlatSpec with ShouldMatchers {
@@ -14,5 +14,9 @@ class Conditions extends FlatSpec with ShouldMatchers {
     new HasKey("non").validates(jsonObject) should be (false)
   }
 
+  it should "Ignore errors in JSON when the NoCondition is selected" in {
+    NoCondition.validates("NO DATA") should be (true)
+    NoCondition.validates("""{"a": 0}""") should be (true)
+  }
 
 }

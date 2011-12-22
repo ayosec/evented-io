@@ -34,7 +34,7 @@ class MongoDBServer(val port: Int) {
       "--port", port.toString,
       "--dbpath", dbPath("data"),
       "--pidfilepath", dbPath("server.pid"),
-      "--logpath", dbPath("server.log"))).run
+      "--logpath", dbPath("server.log"))) !
   }
 
   def startAndWait {

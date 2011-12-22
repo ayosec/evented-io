@@ -9,14 +9,15 @@ import net.liftweb.json.{JValue, MappingException}
 
 class ChecksGroup(val samples: Samples) extends TasksGroup {
 
-  val url = "/stat"
+  val url = "/stats"
   val name = "Checks"
 
-  val queries = List("os", "path", "ip", "browser", "hour", "day").subsamples.filter { _.size > 1 }
+  val queries = List("os", "path", "ip", "browser", "hour", "day").subsamples.filter { (s) => s.size > 1 && s.size < 5 }
 
   lazy val tasks = {
     val validations = List(
-      new Task(Request(GET, url, "name=x"), Response(404))
+      new Task(Request(GET, url, "name=x"), Response(401)),
+      new Task(Request(GET, url, "name=x", samples.users.sample), Response(404))
     )
 
     val checks = parallel(samples.counters.checks) { (count) =>
@@ -35,7 +36,7 @@ class ChecksGroup(val samples: Samples) extends TasksGroup {
 
         // Related task
         builder(i) = new Task(
-          Request(GET, url, "query=" + query.mkString(",") + "&name=" + website.name),
+          Request(GET, url, "query=" + query.mkString(",") + "&name=" + website.name, website.user),
           Response(200, new CompareSet(mapReduce))
         )
       }
