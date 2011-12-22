@@ -128,4 +128,59 @@ class BindizeParserSpec extends FlatSpec with ShouldMatchers {
     evaluating { parser.parse(List("--v")) } should produce [UnkownOptionException]
   }
 
+  it should "add nonoption arguments with NonOptionArguments" in {
+    val parser = new Parser() with NonOptionArguments {
+      var v = false
+      the option "-v" is { this.v = true }
+    }
+
+    parser.parse(List("a", "-v", "b"))
+
+    parser.v should be (true)
+    parser.arguments should be (List("a", "b"))
+
+    // NonOptionArguments still launchs an excepcion on unknown nonoption values
+    evaluating { parser.parse(List("--any")) } should produce [UnkownOptionException]
+  }
+
+  it should "call to unkownOption callback even with NonOptionArguments" in {
+    val parser = new Parser() with NonOptionArguments {
+      var passed = 0
+
+      override def unkownOption(opts: Iterable[String]) = {
+        if(opts.head == "-pass") {
+          this.passed += 1
+          opts.tail
+        } else {
+          super.unkownOption(opts)
+        }
+      }
+    }
+
+    parser.parse(List("-pass", "arg", "-pass"))
+
+    parser.passed should be (2)
+    parser.arguments should be (List("arg"))
+  }
+
+  it should "create a list with the tail with PosixlyNonOptions" in {
+    val parser = new Parser() with PosixlyNonOptions {
+      var a = false
+      var b = false
+
+      the option "-a" is { this.a = true }
+      the option "-b" is { this.b = true }
+    }
+
+    parser.parse(List("-a", "a", "-b", "b"))
+
+    parser.a should be (true)
+    parser.b should be (false)
+    parser.arguments should be (List("a", "-b", "b"))
+
+    // NonOptionArguments still launchs an excepcion on unknown nonoption values
+    evaluating { parser.parse(List("--any")) } should produce [UnkownOptionException]
+  }
+
+
 }
