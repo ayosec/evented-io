@@ -2,6 +2,7 @@ package com.ayosec.eioclient.serverimpls
 
 import sys.process._
 import java.io.File
+import com.ayosec.misc.POSIX
 
 class MongoDBServer(val port: Int) {
 

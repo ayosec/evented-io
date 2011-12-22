@@ -2,9 +2,9 @@
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 
-import com.ayosec.eioclient.tasks.ParallelGenerator._
+import com.ayosec.misc.ParallelGenerator.parallel
 
-class POSIXSpec extends FlatSpec with ShouldMatchers {
+class ParallelSpec extends FlatSpec with ShouldMatchers {
 
   it should "generate as many items as requested" in {
 

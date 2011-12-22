@@ -4,7 +4,7 @@ import util.Random
 import SamplesGenerator._
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
-import ParallelGenerator.parallel
+import com.ayosec.misc.ParallelGenerator.parallel
 
 class Counters {
   var webs = 20

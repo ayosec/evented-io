@@ -1,11 +1,11 @@
 package com.ayosec.eioclient.tasks
 
 import SamplesGenerator._
-import ParallelGenerator.parallel
 
+import com.ayosec.misc.ParallelGenerator.parallel
 import gnu.trove.map.hash.TObjectIntHashMap
-
 import net.liftweb.json.{JValue, MappingException}
+
 
 class ChecksGroup(val samples: Samples) extends TasksGroup {
 

@@ -2,6 +2,7 @@ package com.ayosec.eioclient.serverimpls
 
 import com.ayosec.eioclient.tasks.Task
 import sys.process.Process
+import com.ayosec.misc.POSIX
 
 class ServerImplementation(val path: String) {
 

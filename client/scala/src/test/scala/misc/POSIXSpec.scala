@@ -4,7 +4,7 @@ import org.scalatest.matchers.ShouldMatchers
 import java.lang.IllegalArgumentException
 import sys.process.Process
 
-import com.ayosec.eioclient.serverimpls.POSIX
+import com.ayosec.misc.POSIX
 
 class POSIXSpec extends FlatSpec with ShouldMatchers {
 

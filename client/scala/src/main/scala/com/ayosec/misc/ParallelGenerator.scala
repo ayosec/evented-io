@@ -1,4 +1,4 @@
-package com.ayosec.eioclient.tasks
+package com.ayosec.misc
 
 //import scala.actors.Future
 import actors.Futures._
