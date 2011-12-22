@@ -48,7 +48,7 @@ class ChecksGroup(val samples: Samples) extends TasksGroup {
 
 }
 
-class MapReduceResult {
+class MapReduceResult extends SetComparator {
   type Key = Seq[Tuple2[String, String]]
 
   val expected = new TObjectIntHashMap[Key]
@@ -75,7 +75,7 @@ class MapReduceResult {
     item.count == expected.get(item.key.toSeq)
   }
 
-  def equals(that: JValue): Boolean = {
+  def sameContent(that: JValue): Boolean = {
     try {
       implicit val formats = DefaultFormats
       val items = that.extract[List[JsonItem]]

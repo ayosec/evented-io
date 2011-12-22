@@ -20,7 +20,7 @@ class ChecksSpec extends FlatSpec with ShouldMatchers {
     expected.put(Seq("0" -> "1"), 4)
     expected.put(Seq("a" -> "c"), 2)
     expected.put(Seq("a" -> "d"), 3)
-    expected.equals(jsonObject) should be (true)
+    expected.sameContent(jsonObject) should be (true)
   }
 
   it should "detect when the JSON is differete to the expected object" in {
@@ -28,17 +28,17 @@ class ChecksSpec extends FlatSpec with ShouldMatchers {
     expected.put(Seq("a" -> "b"), 10)
     expected.put(Seq("a" -> "c"), 2)
     expected.put(Seq("0" -> "1"), 4)
-    expected.equals(jsonObject) should be (false)
+    expected.sameContent(jsonObject) should be (false)
   }
 
   it should "just return false if the JSON object has an invalid format" in {
     val expected = new MapReduceResult
     expected.put(Seq("0" -> "1"), 4)
 
-    expected.equals(json.parse(""" [{"x": 1}] """)) should be (false)
-    expected.equals(json.parse(""" [] """)) should be (false)
-    expected.equals(json.parse(""" [1,2,3] """)) should be (false)
-    expected.equals(json.parse(""" {} """)) should be (false)
+    expected.sameContent(json.parse(""" [{"x": 1}] """)) should be (false)
+    expected.sameContent(json.parse(""" [] """)) should be (false)
+    expected.sameContent(json.parse(""" [1,2,3] """)) should be (false)
+    expected.sameContent(json.parse(""" {} """)) should be (false)
   }
 
 }
