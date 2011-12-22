@@ -58,8 +58,20 @@ class Builder(
 
   def cdata(content: String) = factory.createCData(content)
 
-  def attribute(name: String, value: String) = factory.createAttribute(new QName(name), value)
-  def attribute(name: String) = factory.createAttribute(new QName(name), _: String)
+  def attribute(name: String, value: Any) = factory.createAttribute(new QName(name), value.toString)
+
+  def attribute(name: String, value: Option[Any]) =
+    if(value.isEmpty)
+      None
+    else
+      Some(factory.createAttribute(new QName(name), value.get.toString))
+
+  def attribute(name: String): (Any) => Option[XMLEvent] = { (value: Any) =>
+    if(value.isInstanceOf[Option[_]])
+      attribute(name, value.asInstanceOf[Option[_]])
+    else
+      Some(attribute(name, value))
+  }
 
   /*
    * “Appenders”
@@ -84,6 +96,12 @@ class Builder(
     writer.add(tagWithContent.tag.open)
     tagWithContent.content(this)
     writer.add(tagWithContent.tag.close)
+    this
+  }
+
+  def <<(option: Option[XMLEvent]) = {
+    if(!option.isEmpty)
+      writer.add(option.get)
     this
   }
 

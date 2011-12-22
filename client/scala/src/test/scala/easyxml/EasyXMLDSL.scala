@@ -95,4 +95,18 @@ class EasyXMLDSL extends FlatSpec with ShouldMatchers {
     stream.toString should be (xmlHead + """<root><foo><![CDATA[raw text]]></foo><![CDATA[a < b]]></root>""")
   }
 
+  it should "not add attributes of type None" in {
+    val stream = new java.io.ByteArrayOutputStream
+    val builder = Builder(stream, "root")
+    builder << builder.tag("foo")
+    builder << builder.attribute("one", Some("1"))
+    builder << builder.attribute("two", None)
+    builder << builder.attribute("three")(Some("3"))
+    builder << builder.tag("foo").close
+    builder.close
+
+    stream.toString should be (xmlHead + """<root><foo one="1" three="3"></foo></root>""")
+
+  }
+
 }
