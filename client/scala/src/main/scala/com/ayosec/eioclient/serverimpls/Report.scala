@@ -36,16 +36,26 @@ class Report(val outputFileName: String) {
     val aQuery      = A("query")
     val aAuth       = A("auth")
     val aStatus     = A("status")
+    val aFormat     = A("format")
 
     val tServer     = T("server")
     val tRequest    = T("request")
     val tContent    = T("content")
     val tResponse   = T("response")
+    val tResources  = T("resources")
+
+    val tResource    = T("resource")
+    val aTimestamp   = A("timestamp")
+    val aCpuUsage    = A("cpu")
+    val aMemSize     = A("memory-total")
+    val aMemResident = A("memory-resident")
+    val aMemShared   = A("memory-shared")
+
 
     // Generate a <server> with all the requests
     builder << tServer << aPath(server.path) << aTime(totalTime)
 
-    for(result <- results) {
+    for(result <- results.requests) {
       var request = result.task.request
       val isValid = result.task.response.isValid(result.response.getStatusCode,
                                                  result.response.getResponseBody)
@@ -72,6 +82,20 @@ class Report(val outputFileName: String) {
 
       builder << tResponse.close
     }
+
+    // Resource data
+    builder << tResources
+    for(resource <- results.resources) {
+      builder <<
+        tResource <<
+          aTimestamp(resource.timestamp) <<
+          aCpuUsage(resource.cpuUsage) <<
+          aMemSize(resource.memSize) <<
+          aMemResident(resource.memResident) <<
+          aMemShared(resource.memShared) <<
+        tResource.close
+    }
+    builder << tResources.close
 
     builder << tServer.close
   }

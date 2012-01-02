@@ -7,8 +7,18 @@ class CommandLine(args: Iterable[String]) {
 
   val counters = new Counters
 
+  var watchPath: Option[String] = None
+
+  var verbose = true
+
+  var outputFile = "/proc/self/fd/1"
+
   val servers = {
     val parser = new Parser with NonOptionArguments {
+
+      the option "-v" is { verbose = true }
+
+      the option "-o" withParam { outputFile = _ }
 
       // Counter values
       the option "--webs"   withParam { (value) => counters.webs = value.toInt }

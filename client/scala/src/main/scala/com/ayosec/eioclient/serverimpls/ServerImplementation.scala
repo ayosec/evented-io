@@ -1,8 +1,10 @@
 package com.ayosec.eioclient.serverimpls
 
-import com.ayosec.eioclient.tasks.Task
+import java.io.File
 import sys.process.Process
-import com.ayosec.misc.POSIX
+
+import com.ayosec.procfs.TCPInfo
+import com.ayosec.eioclient.tasks.Task
 
 class ServerImplementation(val path: String) {
 
@@ -12,17 +14,23 @@ class ServerImplementation(val path: String) {
   def launch(taskGroups: List[List[Task]]) = {
 
     // Force a stop of any previous server and create a new one
-    POSIX.killAtPortAndWait(implPort)
+    val proc = TCPInfo.processOnPort(implPort)
+    if(proc != null) {
+      proc.sendSignal(15)
+      TCPInfo.waitForFreePort(implPort)
+    }
 
     // Create a new MongoDB instance and starts it. Wait a second
     // for the MongoDB initialization
     val mongodbServer = new MongoDBServer(mongodbPort) {{ startAndWait }}
 
     localServer("start")
-    POSIX.waitForPortReady(implPort)
+    TCPInfo.waitForReadyPort(implPort)
+
+    val resourceWatcher = ResourceWatcher.watch(implPort)
 
     // Launch requests
-    val results = taskGroups flatMap { (tasks) =>
+    val machineResult = taskGroups flatMap { (tasks) =>
       val machine = new RequestMachine(100, implPort, tasks)
       machine.run
     }
@@ -31,7 +39,11 @@ class ServerImplementation(val path: String) {
     localServer("stop")
     mongodbServer.stop
 
-    results
+    // Returns an anonymous pseudo-struct
+    new {
+      val requests = machineResult
+      val resources = resourceWatcher()
+    }
   }
 
 

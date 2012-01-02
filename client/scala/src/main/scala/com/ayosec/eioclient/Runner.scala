@@ -23,7 +23,7 @@ object Runner extends App {
   }
 
   // Run the tests for every implementation
-  val report = new Report("/tmp/out.xml")
+  val report = new Report(options.outputFile)
 
   for(server <- servers) {
     // Force a GC collect to remove previous garbage

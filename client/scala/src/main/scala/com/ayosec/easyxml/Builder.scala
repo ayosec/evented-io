@@ -22,8 +22,6 @@ package subcontent {
     def ~(content: (Builder) => Unit) = new TagWithContent(this, content)
   }
 
-  class StandaloneTag(val tag: String)
-
 }
 
 class Builder(
