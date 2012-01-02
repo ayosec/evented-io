@@ -6,7 +6,7 @@ case "$1" in
     ;;
 
   stop)
-    fuser -k 3000/tcp
+    fuser -k ${PORT:-3000}/tcp
     ;;
 
   *)
