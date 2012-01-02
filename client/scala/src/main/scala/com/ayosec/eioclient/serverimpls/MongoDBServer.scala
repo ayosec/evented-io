@@ -2,6 +2,7 @@ package com.ayosec.eioclient.serverimpls
 
 import sys.process._
 import java.io.File
+import com.ayosec.procfs.TCPInfo
 import com.ayosec.misc.POSIX
 
 class MongoDBServer(val port: Int) {
@@ -16,7 +17,9 @@ class MongoDBServer(val port: Int) {
   def dbPath(path: String) = dbRootPath.getPath + "/" + path
 
   def stop {
-    POSIX.killAtPort(port)
+    val proc = TCPInfo.processOnPort(port)
+    if(proc != null)
+      proc.sendSignal(15)
 
     if(dbRootPath.exists)
       POSIX.delete(dbRootPath)
@@ -39,7 +42,7 @@ class MongoDBServer(val port: Int) {
 
   def startAndWait {
     start
-    POSIX.waitForPortReady(port)
+    TCPInfo.waitForReadyPort(port)
   }
 
 }
