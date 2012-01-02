@@ -16,6 +16,7 @@ fork in run := true
 resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
 
 libraryDependencies ++= Seq(
+  "net.java.dev.jna" % "jna" % "3.4.0",
   "joda-time" % "joda-time" % "1.2.1",
   "com.ning" % "async-http-client" % "1.6.5",
   "org.slf4j" % "slf4j-nop" % "1.6.2",
